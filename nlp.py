@@ -440,7 +440,7 @@ y_voc  =   y_tokenizer.num_words +1
 # In[ ]:
 
 
-y_tokenizer.word_counts['sostok'],len(y_tr)   
+y_tokenizer.word_counts['deal'],len(y_tr)   
 
 
 # Here, I am deleting the rows that contain only **START** and **END** tokens
