@@ -285,7 +285,7 @@ df=pd.DataFrame({'text':short_text,'summary':short_summary})
 # In[ ]:
 
 
-df['summary'] = df['summary'].apply(lambda x : 'sostok '+ x + ' eostok')
+df['summary'] = df['summary'].apply(lambda x : 'deal '+ x + ' deal')
 
 
 # We are getting closer to the model building part. Before that, we need to split our dataset into a training and validation set. We’ll use 90% of the dataset as the training data and evaluate the performance on the remaining 10% (holdout set):
