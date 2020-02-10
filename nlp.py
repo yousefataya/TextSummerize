@@ -3,19 +3,19 @@
 
 # In this notebook, we will build an abstractive based text summarizer using deep learning from the scratch in python using keras
 # 
-# I recommend you to go through the article over [here](https://www.analyticsvidhya.com/blog/2019/06/comprehensive-guide-text-summarization-using-deep-learning-python/) to cover all the concepts which is required to build our own summarizer
+# I recommend you to go through the Kersa , NLTK , Tensorflow DeepLearning
 
 # #Understanding the Problem Statement
 # 
 # Customer reviews can often be long and descriptive. Analyzing these reviews manually, as you can imagine, is really time-consuming. This is where the brilliance of Natural Language Processing can be applied to generate a summary for long reviews.
 # 
-# We will be working on a really cool dataset. Our objective here is to generate a summary for the Amazon Fine Food reviews using the abstraction-based approach we learned about above. You can download the dataset from[ here ](https://www.kaggle.com/snap/amazon-fine-food-reviews)
+# We will be working on a really cool dataset. Our objective here is to generate a summary for the Trump Deal About Palestine reviews using the abstraction-based approach we learned about above. 
 # 
 # It’s time to fire up our Jupyter notebooks! Let’s dive into the implementation details right away.
 # 
 # #Custom Attention Layer
 # 
-# Keras does not officially support attention layer. So, we can either implement our own attention layer or use a third-party implementation. We will go with the latter option for this article. You can download the attention layer from [here](https://github.com/thushv89/attention_keras/blob/master/layers/attention.py) and copy it in a different file called attention.py.
+# Keras does not officially support attention layer. So, we can either implement our own attention layer or use a third-party implementation. We will go with the latter option for this article.
 # 
 # Let’s import it into our environment:
 
@@ -51,14 +51,14 @@ warnings.filterwarnings("ignore")
 
 # #Read the dataset
 # 
-# This dataset consists of reviews of fine foods from Amazon. The data spans a period of more than 10 years, including all ~500,000 reviews up to October 2012. These reviews include product and user information, ratings, plain text review, and summary. It also includes reviews from all other Amazon categories.
+# You can Provide Csv and also you can provide Pdfs
 # 
 # We’ll take a sample of 100,000 reviews to reduce the training time of our model. Feel free to use the entire dataset for training your model if your machine has that kind of computational power.
 
 # In[ ]:
 
-
-data=pd.read_csv("sample.csv",nrows=100000)
+# Here is more more complex I read from pdf PyPdf2 Lib pip install PyPDF2 ad read the pdf. I test it on trump pdf. also i test on csv sample about palestine dataset Palestine Authority National University in Palestine
+data=pd.read_csv("sample.csv",nrows=100000) 
 
 
 # # Drop Duplicates and NA values
