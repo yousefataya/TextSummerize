@@ -599,7 +599,7 @@ def decode_sequence(input_seq):
         sampled_token_index = np.argmax(output_tokens[0, -1, :])
         sampled_token = reverse_target_word_index[sampled_token_index]
         
-        if(sampled_token!='eostok'):
+        if(sampled_token!='deal'):
             decoded_sentence += ' '+sampled_token
 
         # Exit condition: either hit max length or find stop word.
