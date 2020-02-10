@@ -587,7 +587,7 @@ def decode_sequence(input_seq):
     target_seq = np.zeros((1,1))
     
     # Populate the first word of target sequence with the start word.
-    target_seq[0, 0] = target_word_index['sostok']
+    target_seq[0, 0] = target_word_index['deal']
 
     stop_condition = False
     decoded_sentence = ''
@@ -603,7 +603,7 @@ def decode_sequence(input_seq):
             decoded_sentence += ' '+sampled_token
 
         # Exit condition: either hit max length or find stop word.
-        if (sampled_token == 'eostok'  or len(decoded_sentence.split()) >= (max_summary_len-1)):
+        if (sampled_token == 'deal'  or len(decoded_sentence.split()) >= (max_summary_len-1)):
             stop_condition = True
 
         # Update the target sequence (of length 1).
