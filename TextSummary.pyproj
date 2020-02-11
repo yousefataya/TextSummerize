@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{e046246f-286e-4e90-bb9b-8ee3b67022a1}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>nlp.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|PythonCore|3.7</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="dataset\article.txt" />
+    <Content Include="dataset\headline.txt" />
+    <Content Include="requirements.txt" />
+    <Content Include="requirements_gpu.txt" />
+    <Content Include="seq2seq.ini" />
+    <Content Include="seq2seq.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include=".ipynb_checkpoints\execute-checkpoint.py" />
+    <Compile Include=".ipynb_checkpoints\Layers-checkpoint.py" />
+    <Compile Include=".ipynb_checkpoints\seq2seq_model-checkpoint.py" />
+    <Compile Include=".ipynb_checkpoints\split_data-checkpoint.py" />
+    <Compile Include="assignment_1.py" />
+    <Compile Include="AttentionLayer.py" />
+    <Compile Include="data_utils.py" />
+    <Compile Include="download_vocabs_and_trained_params.py" />
+    <Compile Include="evaluation.py" />
+    <Compile Include="execute.py" />
+    <Compile Include="Layers.py" />
+    <Compile Include="nlp.py" />
+    <Compile Include="seq2seq_model.py" />
+    <Compile Include="split_data.py" />
+    <Compile Include="__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include=".ipynb_checkpoints" />
+    <Folder Include="dataset" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.7" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

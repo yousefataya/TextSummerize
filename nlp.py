@@ -38,6 +38,7 @@ from bs4 import BeautifulSoup
 from keras.preprocessing.text import Tokenizer 
 from keras.preprocessing.sequence import pad_sequences
 import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 import tensorflow as tf
 from keras.layers import Input, LSTM, Embedding, Dense, Concatenate, TimeDistributed, Bidirectional
@@ -45,10 +46,28 @@ from keras.models import Model , Sequential
 from keras.datasets import imdb
 from keras.callbacks import EarlyStopping
 import warnings
+from PyPDF2 import PdfFileReader
+from nltk.tag import pos_tag
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk import sent_tokenize
+stemmer = WordNetLemmatizer()
+import six
 pd.set_option("display.max_colwidth", 200)
 warnings.filterwarnings("ignore")
 
 
+def lemmatize_sentence(tokens):
+    lemmatizer = WordNetLemmatizer()
+    lemmatized_sentence = []
+    for word, tag in pos_tag(tokens):
+        if tag.startswith('NN'):
+            pos = 'n'
+        elif tag.startswith('VB'):
+            pos = 'v'
+        else:
+            pos = 'a'
+        lemmatized_sentence.append(lemmatizer.lemmatize(word, pos))
+    return lemmatized_sentence
 # #Read the dataset
 # 
 # You can Provide Csv and also you can provide Pdfs
@@ -58,16 +77,93 @@ warnings.filterwarnings("ignore")
 # In[ ]:
 
 # Here is more more complex I read from pdf PyPdf2 Lib pip install PyPDF2 ad read the pdf. I test it on trump pdf. also i test on csv sample about palestine dataset Palestine Authority National University in Palestine
-data=pd.read_csv("sample.csv",nrows=100000) 
+#data=pd.read_csv("sample.csv",nrows=100000) 
+data = ''
+text = ''
+text__ = ''
+startPage = 0
+cleanText = ''
+stop_words = set(stopwords.words('english')) 
+documents = []
 
 
+import csv
+total____________ =  ' '
+iseral___________ = 0
+palestine__________ = 0
+with open("samplenlp.pdf", 'rb') as f:
+        pdf = PdfFileReader(f)
+        information = pdf.getDocumentInfo()
+        number_of_pages = pdf.getNumPages()
+        count = pdf.numPages
+        for i in range(count):
+            pageObj = pdf.getPage(i)
+            text = pageObj.extractText()
+
+            #from sklearn.feature_extraction.text import CountVectorizer
+            #vectorizer = CountVectorizer(max_features=1500, min_df=0.1, max_df=0.95, stop_words=stopwords.words('english'))
+            #X = vectorizer.fit_transform(documents).toarray()
+            #from sklearn.feature_extraction.text import TfidfTransformer
+            #tfidfconverter = TfidfTransformer()
+            #arrys____ = tfidfconverter.fit_transform(X).toarray()
+            text________________ = ''
+            split__________ = text.split()
+            for i___________ in  split__________:
+                       text________________ +=  ' ' +str(i___________)
+
+            text________________ = text________________.split()
+            tokens = [w for w in text________________ if not w in stop_words]
+
+
+            statementg_____________ = ' '
+            for k_________ in  tokens:
+               
+                k_________.replace('.','')
+                
+                #statementg_____________.replace('!','')
+                #statementg_____________.replace('?','')
+                k_________.replace(':','')
+                k_________.replace(')','')
+                k_________.replace('(','')
+                k_________.replace('\n','')
+                k_________.replace('\r','')
+                k_________.replace('\"','')
+                k_________.replace('\'','')
+                statementg_____________ += ' '+str(k_________)
+            print('..........')  
+            newRow = pd.DataFrame( {'text' : statementg_____________},index = [0] ,columns = ['text']   )
+            newRow['text'].replace('.','')
+            newRow['text'].replace('!','')
+            newRow['text'].replace('?','')
+            newRow['text'].replace(':','')
+            newRow['text'].replace(')','')
+            newRow['text'].replace('(','')
+            newRow['text'].replace('\n','')
+            newRow['text'].replace('\r','')
+            newRow.drop_duplicates()
+            newRow.dropna() 
+            all__________ = ' '
+            for i in range(len(newRow)) : 
+               all__________  += newRow.loc[0, "text"]
+            cc________________  = ' ' 
+            sentences = sent_tokenize(all__________)  
+            for o__________ in sentences:
+                cc________________  +=  o__________   + '\n'
+
+            total____________ += cc________________ 
+df = pd.DataFrame( {'classifier' : total____________},index = [0] ,columns = ['classifier']   )
+df.drop_duplicates()
+df.dropna()
+df.to_csv("statement_____.csv", sep=',', encoding='utf-8')
+print('palestine__________' + str(total____________.count('Palestinian')))
+print('iseral___________' + str(total____________.count('Israeli')))
 # # Drop Duplicates and NA values
 
 # In[ ]:
 
 
-data.drop_duplicates( subset=None, keep="first", inplace=False)#dropping duplicates
-data.dropna(axis=0,inplace=True)#dropping na
+#data.drop_duplicates( subset=None, keep="first", inplace=False)#dropping duplicates
+#data.dropna(axis=0,inplace=True)#dropping na
 
 
 # # Information about dataset
@@ -77,9 +173,6 @@ data.dropna(axis=0,inplace=True)#dropping na
 # In[ ]:
 
 
-data.info()
-
-
 # #Preprocessing
 # 
 # Performing basic preprocessing steps is very important before we get to the model building part. Using messy and uncleaned text data is a potentially disastrous move. So in this step, we will drop all the unwanted symbols, characters, etc. from the text that do not affect the objective of our problem.
@@ -87,31 +180,6 @@ data.info()
 # Here is the dictionary that we will use for expanding the contractions:
 
 # In[ ]:
-
-
-contraction_mapping = {"ain't": "is not", "aren't": "are not","can't": "cannot", "'cause": "because", "could've": "could have", "couldn't": "could not",
-                           "didn't": "did not",  "doesn't": "does not", "don't": "do not", "hadn't": "had not", "hasn't": "has not", "haven't": "have not",
-                           "he'd": "he would","he'll": "he will", "he's": "he is", "how'd": "how did", "how'd'y": "how do you", "how'll": "how will", "how's": "how is",
-                           "I'd": "I would", "I'd've": "I would have", "I'll": "I will", "I'll've": "I will have","I'm": "I am", "I've": "I have", "i'd": "i would",
-                           "i'd've": "i would have", "i'll": "i will",  "i'll've": "i will have","i'm": "i am", "i've": "i have", "isn't": "is not", "it'd": "it would",
-                           "it'd've": "it would have", "it'll": "it will", "it'll've": "it will have","it's": "it is", "let's": "let us", "ma'am": "madam",
-                           "mayn't": "may not", "might've": "might have","mightn't": "might not","mightn't've": "might not have", "must've": "must have",
-                           "mustn't": "must not", "mustn't've": "must not have", "needn't": "need not", "needn't've": "need not have","o'clock": "of the clock",
-                           "oughtn't": "ought not", "oughtn't've": "ought not have", "shan't": "shall not", "sha'n't": "shall not", "shan't've": "shall not have",
-                           "she'd": "she would", "she'd've": "she would have", "she'll": "she will", "she'll've": "she will have", "she's": "she is",
-                           "should've": "should have", "shouldn't": "should not", "shouldn't've": "should not have", "so've": "so have","so's": "so as",
-                           "this's": "this is","that'd": "that would", "that'd've": "that would have", "that's": "that is", "there'd": "there would",
-                           "there'd've": "there would have", "there's": "there is", "here's": "here is","they'd": "they would", "they'd've": "they would have",
-                           "they'll": "they will", "they'll've": "they will have", "they're": "they are", "they've": "they have", "to've": "to have",
-                           "wasn't": "was not", "we'd": "we would", "we'd've": "we would have", "we'll": "we will", "we'll've": "we will have", "we're": "we are",
-                           "we've": "we have", "weren't": "were not", "what'll": "what will", "what'll've": "what will have", "what're": "what are",
-                           "what's": "what is", "what've": "what have", "when's": "when is", "when've": "when have", "where'd": "where did", "where's": "where is",
-                           "where've": "where have", "who'll": "who will", "who'll've": "who will have", "who's": "who is", "who've": "who have",
-                           "why's": "why is", "why've": "why have", "will've": "will have", "won't": "will not", "won't've": "will not have",
-                           "would've": "would have", "wouldn't": "would not", "wouldn't've": "would not have", "y'all": "you all",
-                           "y'all'd": "you all would","y'all'd've": "you all would have","y'all're": "you all are","y'all've": "you all have",
-                           "you'd": "you would", "you'd've": "you would have", "you'll": "you will", "you'll've": "you will have",
-                           "you're": "you are", "you've": "you have"}
 
 
 # We will perform the below preprocessing tasks for our data:
@@ -137,26 +205,37 @@ contraction_mapping = {"ain't": "is not", "aren't": "are not","can't": "cannot",
 # In[ ]:
 
 
-stop_words = set(stopwords.words('english')) 
 
+newString = ''
 def text_cleaner(text,num):
-    newString = text.lower()
-    newString = BeautifulSoup(newString, "lxml").text
-    newString = re.sub(r'\([^)]*\)', '', newString)
-    newString = re.sub('"','', newString)
-    newString = ' '.join([contraction_mapping[t] if t in contraction_mapping else t for t in newString.split(" ")])    
-    newString = re.sub(r"'s\b","",newString)
-    newString = re.sub("[^a-zA-Z]", " ", newString) 
-    newString = re.sub('[m]{2,}', 'mm', newString)
-    if(num==0):
-        tokens = [w for w in newString.split() if not w in stop_words]
-    else:
-        tokens=newString.split()
-    long_words=[]
-    for i in tokens:
-        if len(i)>1:                                                 #removing short word
-            long_words.append(i)   
-    return (" ".join(long_words)).strip()
+    str = " "
+   # newString = BeautifulSoup(newString, "lxml").text
+   # newString = re.sub(r'\([^)]*\)', '', newString)
+   # newString = re.sub('"','', newString)
+   # newString = ' '.join([contraction_mapping[t] if t in contraction_mapping else t for t in newString.split(" ")])    
+   # newString = re.sub(r"'s\b","",newString)
+   # newString = re.sub("[^a-zA-Z]", " ", newString) 
+   # newString = re.sub('[m]{2,}', 'mm', newString)
+    str___ = text.lower()
+    str =" "+ str___
+    token______ = str.split()
+    tokens = [w for w in token______ if not w in stop_words]
+    tokens____ = [w for w in tokens if not w in contraction_mapping]
+    str______ = ''
+    for c___ in tokens____:
+        str______ += ' ' + c___
+    newRow = pd.DataFrame(index = [0] ,columns = ["Rows"]   , data = [str______])
+    newRow.drop_duplicates()
+    newRow.dropna()
+    all___ = ' '
+    select_text_______ = ''
+    for i in range(len(newRow)) : 
+               all___ = newRow.loc[0, "Rows"] 
+
+
+     
+    
+    return (" ".join(all___)).strip()
 
 
 # In[ ]:
@@ -164,8 +243,7 @@ def text_cleaner(text,num):
 
 #call the function
 cleaned_text = []
-for t in data:
-    cleaned_text.append(text_cleaner(t,0)) 
+cleaned_text.append(text_cleaner(data,0)) 
 
 
 # Let us look at the first five preprocessed reviews
@@ -181,8 +259,7 @@ cleaned_text[:5]
 
 #call the function
 cleaned_summary = []
-for t in data:
-    cleaned_summary.append(text_cleaner(t,1))
+cleaned_summary.append(text_cleaner(data,1))
 
 
 # Let us look at the first 10 preprocessed summaries
@@ -205,8 +282,8 @@ datacleaned_summary=cleaned_summary
 # In[ ]:
 
 
-data.replace('', np.nan, inplace=True)
-data.dropna(axis=0,inplace=True)
+#data.replace('', np.nan, inplace=True)
+#data.dropna(axis=0,inplace=True)
 
 
 # #Understanding the distribution of the sequences
@@ -222,11 +299,20 @@ text_word_count = []
 summary_word_count = []
 
 # populate the lists with sentence lengths
-for i in datacleantext:
-      text_word_count.append(len(i.split()))
+cltext = ' '
+clsummary = ''
+counter__summary = 0
+counter__text = 0
+for x__ in datacleantext :
+    counter__text +=1
+    cltext +=x__
+for y__ in datacleaned_summary:
+    counter__summary +=1
+    clsummary +=y__
 
-for i in datacleaned_summary:
-      summary_word_count.append(len(i.split()))
+
+text_word_count.append(counter__text)
+summary_word_count.append(counter__summary)
 
 length_df = pd.DataFrame({'text':text_word_count, 'summary':summary_word_count})
 
@@ -243,9 +329,9 @@ plt.show()
 
 cnt=0
 for i in datacleaned_summary:
-    if(len(i.split())<=8):
+    if(counter__summary<=8):
         cnt=cnt+1
-print(cnt/len(datacleaned_summary))
+print(cnt/counter__summary)
 
 
 # We observe that 94% of the summaries have length below 8. So, we can fix maximum length of summary to 8.
@@ -263,30 +349,37 @@ max_summary_len=8
 
 # In[ ]:
 
-
-cleaned_text =np.array(datacleantext)
-cleaned_summary=np.array(datacleaned_summary)
+count____txt = 0
+count____summary = 0
+txt_____ = ''
+summary____ = ''
+cleaned_text =np.array(cltext)
+cleaned_summary=np.array(clsummary)
 
 short_text=[]
 short_summary=[]
+for i________ in cltext:
+    count____txt +=1
+    short_text.append(i________)
 
-for i in range(len(cleaned_text)):
-    if(len(cleaned_summary[i].split())<=max_summary_len and len(cleaned_text[i].split())<=max_text_len):
-        short_text.append(cleaned_text[i])
-        short_summary.append(cleaned_summary[i])
-        
-df=pd.DataFrame({'text':short_text,'summary':short_summary})
+for y________ in clsummary:
+    count____summary +=1
+    short_summary.append(y________)
 
+print(count____txt) 
+print(count____summary) 
 
+df=pd.DataFrame( {'text':cleaned_text,'summary':cleaned_summary} , columns= ['text','summary'] , index=[0])
+df.drop_duplicates()
+df.dropna()
 # Remember to add the **START** and **END** special tokens at the beginning and end of the summary. Here, I have chosen **sostok** and **eostok** as START and END tokens
 # 
 # **Note:** Be sure that the chosen special tokens never appear in the summary
 
 # In[ ]:
 
-
-df['summary'] = df['summary'].apply(lambda x : 'deal '+ x + ' deal')
-
+str_________ = ' ' + 'iseral'
+df['summary'] = df['summary'].apply(lambda x : str_________ + str(x))
 
 # We are getting closer to the model building part. Before that, we need to split our dataset into a training and validation set. We’ll use 90% of the dataset as the training data and evaluate the performance on the remaining 10% (holdout set):
 
@@ -294,9 +387,10 @@ df['summary'] = df['summary'].apply(lambda x : 'deal '+ x + ' deal')
 
 
 from sklearn.model_selection import train_test_split
-x_tr,x_val,y_tr,y_val=train_test_split(np.array(df['text']),np.array(df['summary']),test_size=0.1,random_state=0,shuffle=True) 
+x_tr,x_val,y_tr,y_val=train_test_split(np.array(df['text']),np.array(df['summary']),test_size=0.25,random_state=0,shuffle=True ) 
 
-
+print(len(x_tr))
+print(len(y_tr))
 # #Preparing the Tokenizer
 # 
 # A tokenizer builds the vocabulary and converts a word sequence to an integer sequence. Go ahead and build tokenizers for text and summary:
@@ -329,16 +423,15 @@ cnt=0
 tot_cnt=0
 freq=0
 tot_freq=0
-
+print(len(x_tokenizer.word_counts.items()))
 for key,value in x_tokenizer.word_counts.items():
     tot_cnt=tot_cnt+1
     tot_freq=tot_freq+value
-    if(value<thresh):
-        cnt=cnt+1
-        freq=freq+value
+    cnt=cnt+1
+    freq=freq+value
     
-print("% of rare words in vocabulary:",(cnt/tot_cnt)*100)
-print("Total Coverage of rare words:",(freq/tot_freq)*100)
+#print("% of rare words in vocabulary:",(cnt/tot_cnt)*100)
+#print("Total Coverage of rare words:",(freq/tot_freq)*100)
 
 
 # **Remember**:
@@ -403,15 +496,17 @@ tot_cnt=0
 freq=0
 tot_freq=0
 
+print(len(y_tokenizer.word_counts.items()))
+
 for key,value in y_tokenizer.word_counts.items():
     tot_cnt=tot_cnt+1
     tot_freq=tot_freq+value
-    if(value<thresh):
-        cnt=cnt+1
-        freq=freq+value
+    print(value)
+    cnt=cnt+1
+    freq=freq+value
     
-print("% of rare words in vocabulary:",(cnt/tot_cnt)*100)
-print("Total Coverage of rare words:",(freq/tot_freq)*100)
+#print("% of rare words in vocabulary:",(cnt/tot_cnt)*100)
+#print("Total Coverage of rare words:",(freq/tot_freq)*100)
 
 
 # Let us define the tokenizer with top most common words for summary.
@@ -440,7 +535,7 @@ y_voc  =   y_tokenizer.num_words +1
 # In[ ]:
 
 
-y_tokenizer.word_counts['deal'],len(y_tr)   
+#y_tokenizer.word_counts['deal'],len(y_tr)   
 
 
 # Here, I am deleting the rows that contain only **START** and **END** tokens
@@ -587,7 +682,7 @@ def decode_sequence(input_seq):
     target_seq = np.zeros((1,1))
     
     # Populate the first word of target sequence with the start word.
-    target_seq[0, 0] = target_word_index['deal']
+    target_seq[0, 0] = target_word_index['iseral']
 
     stop_condition = False
     decoded_sentence = ''
@@ -599,11 +694,11 @@ def decode_sequence(input_seq):
         sampled_token_index = np.argmax(output_tokens[0, -1, :])
         sampled_token = reverse_target_word_index[sampled_token_index]
         
-        if(sampled_token!='deal'):
+        if(sampled_token!='iseral'):
             decoded_sentence += ' '+sampled_token
 
         # Exit condition: either hit max length or find stop word.
-        if (sampled_token == 'deal'  or len(decoded_sentence.split()) >= (max_summary_len-1)):
+        if (sampled_token == 'iseral'  or len(decoded_sentence.split()) >= (max_summary_len-1)):
             stop_condition = True
 
         # Update the target sequence (of length 1).
